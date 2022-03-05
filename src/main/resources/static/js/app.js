@@ -1,7 +1,7 @@
 app = (function(){
 //      ESTA LÍNEA ES LA QUE CAMBIA EL apimock Y EL apiclient
-//        let _module = apimock;
-        let _module = apiclient;
+        let _module = apimock;
+//        let _module = apiclient;
         let _selectedAuthorName;
         let _blueprintsByAuthor = [];
         let _totalPoints;
