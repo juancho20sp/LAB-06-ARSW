@@ -1,12 +1,16 @@
 app = (function(){
-    let _module = apimock;
+//    let _module = apimock;
+    let _module = apiclient;
     let _selectedAuthorName;
     let _blueprintsByAuthor = [];
+    let _totalPoints;
     let _totalPointsLabel;
-
+    let _blueprintName;
 
     const _tableBody = $('#table-body');
     const _getBlueprintsBtn = document.querySelector('#getBlueprintsBtn');
+    _totalPointsLabel = document.querySelector('#totalUserPoints');
+    _blueprintName = $('#blueprintName');
 
 
     // Functions
@@ -24,17 +28,48 @@ app = (function(){
         list.map(blueprint => {
             const { name, points } = blueprint;
 
+            const button = `<button onclick="app.drawBlueprint('${name}')">Draw</button>`;
             const row = document.createElement('tr');
+
             row.innerHTML = `
                 <td>${name}</td>
                 <td>${points}</td>
+                <td>${button}</td
             `
 
             _tableBody.append(row);
 
         });
 
-        _totalPointsLabel = list.reduce((acc, cur) => acc + cur.points, 0);
+        _totalPoints = list.reduce((acc, cur) => acc + cur.points, 0);
+
+        _totalPointsLabel.innerHTML = _totalPoints;
+    }
+
+    const draw = (blueprintName) => {
+        _blueprintName.text(`Blueprint: ${blueprintName}`);
+
+        _module.getBlueprintsByNameAndAuthor(_selectedAuthorName, blueprintName, (data) => {
+            const _canvas = $('#canvas')[0];
+            const { points } = data;
+
+            if (_canvas.getContext) {
+                const context = _canvas.getContext('2d');
+
+                // Clear canvas
+                context.clearRect(0, 0, _canvas.width, _canvas.height);
+                _canvas.width = _canvas.width;
+
+                context.moveTo(points[0].x, points[0].y);
+
+                points.forEach(point => {
+                    const { x, y } = point;
+                    context.lineTo(x, y);
+                });
+
+                context.stroke();
+            }
+        });
     }
 
     const readInputData = () => {
@@ -51,15 +86,10 @@ app = (function(){
     }
 
 
-
     // EVENT LISTENERS
     const loadEventListeners = () => {
-        _getBlueprintsBtn.addEventListener('click', getBlueprints)
+        _getBlueprintsBtn.addEventListener('click', getBlueprints);
     }
-
-
-
-
 
     loadEventListeners();
 
@@ -81,11 +111,11 @@ app = (function(){
         },
 
         refreshBlueprintsList: () => {
-            const callback = (blueprintsList) => {
-
-            }
-
             _module.getBlueprintsByAuthor()
+        },
+
+        drawBlueprint: (blueprintName) => {
+            draw(blueprintName)
         }
 
     }
@@ -99,86 +129,5 @@ var fun=function(list){
 
 apimock.getBlueprintsByAuthor("johnconnor",fun);
 apimock.getBlueprintsByNameAndAuthor("johnconnor","house",fun);*/
-
-
-
-
-app = (function(){
-    let _module = apimock;
-    let _selectedAuthorName;
-    let _blueprintsByAuthor = [];
-    let _totalPointsLabel;
-
-
-    const _tableBody = $('#table-body');
-    const _getBlueprintsBtn = $('#getBlueprintsBtn');
-
-    // EVENT LISTENERS
-    _getBlueprintsBtn.on('click', alert('holiwi'));
-
-    const privateMethod = () => {
-
-    }
-
-    return {
-        setModule: (module = apimock) => {
-            _module = module;
-        },
-
-        setSelectedAuthorName: (name) => {
-            _selectedAuthorName = name;
-        },
-
-        setBlueprintsByAuthor: (blueprintsList = []) => {
-            _blueprintsByAuthor = blueprintsList;
-        },
-
-        updateAuthorName: (newName) => {
-            _selectedAuthorName = newName;
-        },
-
-        refreshBlueprintsList: () => {
-            const callback = (blueprintsList) => {
-                const list = blueprintsList.map(blueprint => {
-                    name: blueprint.name;
-                    points: blueprint.points.length;
-                });
-
-                // Clear the table
-                _tableBody.empty();
-
-                list.map(blueprint => {
-                    const { name, points } = blueprint;
-
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${name}</td>
-                        <td>${points}</td>
-                    `
-
-                    _tableBody.append(row);
-
-
-                });
-
-                _totalPointsLabel = list.reduce((acc, cur) => acc + cur.points, 0);
-            }
-
-            _module.getBlueprintsByAuthor()
-        }
-
-    }
-})();
-
-/*
-Example of use:
-var fun=function(list){
-	console.info(list);
-}
-
-apimock.getBlueprintsByAuthor("johnconnor",fun);
-apimock.getBlueprintsByNameAndAuthor("johnconnor","house",fun);*/
-
-
 
 
